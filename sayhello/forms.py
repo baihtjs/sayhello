@@ -7,3 +7,10 @@ class HelloForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired(), Length(1,50)])
     body = TextAreaField('Message', validators=[DataRequired(), Length(1,200)])
     submit = SubmitField('Commit')
+
+class TelnetForm(FlaskForm):
+    ip = StringField('IP',validators=[DataRequired()])
+    port = StringField('Port', validators=[DataRequired()])
+    username = StringField('Username', validators=[DataRequired()])
+    password = StringField('Password', validators=[DataRequired()])
+    submit = SubmitField('Connect')
