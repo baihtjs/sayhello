@@ -13,4 +13,7 @@ class TelnetForm(FlaskForm):
     port = StringField('Port', validators=[DataRequired()])
     username = StringField('Username', validators=[DataRequired()])
     password = StringField('Password', validators=[DataRequired()])
+    inputcommand = StringField('Command')
     submit = SubmitField('Connect')
+    submit1 = SubmitField('Command')
+    submit2 = SubmitField('Exit')

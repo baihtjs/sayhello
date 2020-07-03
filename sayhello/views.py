@@ -10,6 +10,7 @@ from sayhello.forms import HelloForm, TelnetForm
 from sayhello.models import Message
 from sayhello import db
 from sayhello import app
+import chardet
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -64,6 +65,7 @@ class TelnetClient():
             logging.warning('%s登录失败，用户名或密码错误'%ip)
             return False
 
+
     # 此函数实现执行传过来的命令，并输出其执行结果
     def execute_some_command(self,command):
         # 执行命令
@@ -79,43 +81,74 @@ class TelnetClient():
         self.tn.write(b"quit\n")
 
 @app.route('/telnet',methods=['GET','POST'])
-def telnet(command_result=None):
+def telnet():
     form = TelnetForm()
+    tn = TelnetClient()
     command_results = ""
     if form.validate_on_submit():
-        ip = form.ip.data
-        port = form.port.data
-        username = form.username.data
-        password = form.password.data
-        config1 = "sys"
-        config2 = "int lo1"
-        config3 = "ip add 1.1.1.1 255.255.255.255"
-        #tn = telnetlib.Telnet(ip, port=23, timeout=50)
-        tn = TelnetClient()
-        tn.login_host(ip,username,password)
-        time.sleep(2)
-        tn.execute_some_command(config1)
-        time.sleep(2)
-        tn.execute_some_command(config2)
-        command_results = command_result
-        #print(tn.read_very_eager())
-       # tn.write(username.encode('ascii') + b'\n')
-        #print(tn.read_very_eager())
-        time.sleep(2)
-      #  tn.write(password.encode('ascii') + b'\n')
-       # print(tn.read_very_eager())
-       # time.sleep(2)
-      #  tn.write(config1.encode('ascii') + b'\n')
-      #  time.sleep(2)
-       # tn.write(config2.encode('ascii') + b'\n')
-       # time.sleep(2)
-       # tn.write(config3.encode('ascii') + b'\n')
-        #tn.write("sys\n")
-      #  print(tn.read_very_eager())
-        time.sleep(2)
-        tn.logout_host()
-    return render_template('telnet.html',form=form)
+        if form.submit.data:
+            ip = form.ip.data
+            port = form.port.data
+            username = form.username.data
+            password = form.password.data
+            config1 = "sys"
+            config2 = "int lo20"
+            config3 = "ip add 1.1.1.1 255.255.255.255"
+            dispiproute = "display ip routing-table"
+            #tn = telnetlib.Telnet(ip, port=23, timeout=50)
+            result = tn.login_host(ip, username, password)
+            if result == False:
+                print('Connect fail!')
+            elif result == True:
+                print('Connect!')
+                command_results = "Connect Success!"
+                print(command_results)
+        elif form.submit1.data:
+            inputcommand = form.inputcommand.data
+            command_results = tn.execute_some_command(inputcommand)
+            print(command_results)
+        elif form.submit2.data:
+            tn.logout_host()
+    return render_template('telnet.html',form=form, command_results=command_results)
 
-
-
-
+@app.route('/telnet2',methods=['GET','POST'])
+def telnet2():
+    form = TelnetForm()
+    tn = TelnetClient()
+    command_results = ""
+    if form.validate_on_submit():
+        if form.submit.data:
+            ip = form.ip.data
+            port = form.port.data
+            username = form.username.data
+            password = form.password.data
+            config1 = "sys"
+            config2 = "int lo20"
+            config3 = "ip add 1.1.1.1 255.255.255.255"
+            dispiproute = "display ip routing-table"
+            #tn = telnetlib.Telnet(ip, port=23, timeout=50)
+            result = tn.login_host(ip, username, password)
+            if result == False:
+                print('Connect fail!')
+            elif result == True:
+                print('Connect!')
+                command_results = "Connect Success!"
+                print(command_results)
+        elif form.submit1.data:
+            ip = form.ip.data
+            port = form.port.data
+            username = form.username.data
+            password = form.password.data
+            result = tn.login_host(ip, username, password)
+            if result == False:
+                print('Connect fail!')
+            elif result == True:
+                print('Connect!')
+                command_results = "Connect Success!"
+                print(command_results)
+            inputcommand = form.inputcommand.data
+            command_results = tn.execute_some_command(inputcommand)
+            print(command_results)
+        #elif form.submit2.data:
+        #    tn.logout_host()
+    return render_template('telnet.html',form=form, command_results=command_results)
