@@ -11,8 +11,8 @@ class HelloForm(FlaskForm):
 class TelnetForm(FlaskForm):
     ip = StringField('IP',validators=[DataRequired()])
     port = StringField('Port', validators=[DataRequired()])
-    username = StringField('Username', validators=[DataRequired()])
-    password = StringField('Password', validators=[DataRequired()])
+    username = StringField('Username')
+    password = StringField('Password')
     inputcommand = StringField('Command')
     submit = SubmitField('Connect')
     submit1 = SubmitField('Command')

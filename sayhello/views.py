@@ -1,4 +1,4 @@
-from flask import flash, redirect, url_for, render_template
+from flask import flash, redirect, url_for, render_template, request, jsonify
 import telnetlib
 from threading import Thread
 import json
@@ -10,7 +10,7 @@ from sayhello.forms import HelloForm, TelnetForm
 from sayhello.models import Message
 from sayhello import db
 from sayhello import app
-import chardet
+
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -39,10 +39,10 @@ class TelnetClient():
         self.tn = telnetlib.Telnet()
 
     # 此函数实现telnet登录主机
-    def login_host(self,ip,username,password):
+    def login_host(self,ip,port,username,password):
         try:
-            self.tn = telnetlib.Telnet(ip,port=23)
-            self.tn.open(ip,port=23)
+            self.tn = telnetlib.Telnet(ip,port)
+            self.tn.open(ip,port)
         except:
             logging.warning('%s网络连接失败'%ip)
             return False
@@ -96,7 +96,7 @@ def telnet():
             config3 = "ip add 1.1.1.1 255.255.255.255"
             dispiproute = "display ip routing-table"
             #tn = telnetlib.Telnet(ip, port=23, timeout=50)
-            result = tn.login_host(ip, username, password)
+            result = tn.login_host(ip,port,username, password)
             if result == False:
                 print('Connect fail!')
             elif result == True:
@@ -127,7 +127,7 @@ def telnet2():
             config3 = "ip add 1.1.1.1 255.255.255.255"
             dispiproute = "display ip routing-table"
             #tn = telnetlib.Telnet(ip, port=23, timeout=50)
-            result = tn.login_host(ip, username, password)
+            result = tn.login_host(ip, port,username, password)
             if result == False:
                 print('Connect fail!')
             elif result == True:
@@ -139,7 +139,7 @@ def telnet2():
             port = form.port.data
             username = form.username.data
             password = form.password.data
-            result = tn.login_host(ip, username, password)
+            result = tn.login_host(ip,port, username, password)
             if result == False:
                 print('Connect fail!')
             elif result == True:
@@ -152,3 +152,39 @@ def telnet2():
         #elif form.submit2.data:
         #    tn.logout_host()
     return render_template('telnet.html',form=form, command_results=command_results)
+
+
+@app.route('/_add_numbers')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
+@app.route('/_index_telnet')
+def index_telnet():
+    a = request.args.get('a', 0, type=str)
+    tn = TelnetClient()
+    ip = "192.168.1.10"
+    port = "23"
+    username = "test"
+    password ="123"
+    tn.login_host(ip, port, username, password)
+    print("CONNting")
+    result = tn.execute_some_command(a)
+
+    return jsonify(result=result)
+
+
+@app.route('/index2')
+def index2():
+    html = render_template('index2.html')
+    return html
+@app.route('/index3')
+def index3():
+    html = render_template('index_telnet.html')
+    return html
+
+
+@app.route('/test_post', methods=['GET', 'POST'])
+def test_post():
+    return '{"name":"zhangsan"}'
